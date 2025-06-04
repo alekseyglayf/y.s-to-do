@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Y.S To-Do</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+    <style>
+        .delete-btn {
+            margin-left: 10px;
+            color: red;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        body {
+      margin: 0;
+      font-family: "Noto Sans KR", sans-serif;
+      background-color: #f7f7f7;
+    }
+
+    /* 왼쪽 상단 타이틀 */
+    h1 {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      margin: 0;
+      font-size: 24px;
+      color: #333;
+    }
+
+    /* 중앙 정렬 박스 (입력창 + 리스트) */
+    .container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 20vh; /* 화면 세로의 20% 아래에서 시작 (1/4 지점보다 살짝 위) */
+    }
+
+    .box {
+      width: 90%;
+      max-width: 400px;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+
+    /* 입력창 + 버튼 */
+    #todo-input {
+      width: 70%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    #add-button {
+      padding: 10px 16px;
+      font-size: 16px;
+      margin-left: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #add-button:hover {
+      background-color: #45a049;
+    }
+
+    /* 리스트 스타일 */
+    #todo-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    #todo-list li {
+      padding: 12px 10px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .delete-btn {
+      background: none;
+      color: red;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+        
+    </style>
+</head>
+<body>
+    <h1>My To-Do list</h1>
+
+    <div class="container">
+    <div class="box">
+      <input type="text" id="todo-input" placeholder="할 일을 입력하세요">
+      <button id="add-button">추가</button>
+      <ul id="todo-list"></ul>
+    </div>
+  </div>
+
+    <script>
+        let todos = [];
+
+        const input = document.getElementById("todo-input");
+        const button = document.getElementById("add-button");
+        const list = document.getElementById("todo-list");
+
+        function renderTodos() {
+            list.innerHTML = "";
+
+            todos.forEach((todo, index) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = todo.text;
+
+                if(todo.completed) {
+                    listItem.classList.add("completed");
+                }
+
+                listItem.addEventListener("click", function() {
+                    todos[index].completed = !todos[index].completed;
+                    saveTodos();
+                    renderTodos();
+                });
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "삭제";
+                deleteBtn.className = "delete-btn";
+
+                deleteBtn.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    todos.splice(index, 1);
+                    saveTodos();
+                    renderTodos();
+                });
+
+                listItem.appendChild(deleteBtn);
+                list.appendChild(listItem);
+            });
+        }
+
+        function saveTodos() {
+            localStorage.setItem("todos",JSON.stringify(todos));
+        }
+
+        function loadTodos () {
+            const saved = localStorage.getItem("todos");
+            if(saved) {
+                todos = JSON.parse(saved);
+                renderTodos();
+            }
+        }
+
+        button.addEventListener("click", function() {
+  const todoText = input.value;
+
+  if (todoText !== "") {
+    const todoItem = {
+        text: todoText,
+        completed: false
+    };
+
+    todos.push(todoItem);
+    saveTodos();
+    renderTodos();
+
+    input.value = "";
+  }  
+});
+
+input.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+        button.click();
+    }
+});
+
+loadTodos();
+    </script>
+</body>    
+</html>
